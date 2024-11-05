@@ -1,0 +1,33 @@
+import launch
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    # Declare the launch argument for speed with a default value of 80
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'speed', 
+            default_value='80',  # Default value for the speed parameter
+            description='Initial speed for the cruise control'
+        ),
+        
+        # Launch the cruise_server node and pass the speed parameter
+        Node(
+            package='cruise_control',  # Package where your cruise control node is
+            executable='cruise_server',  # Name of the executable to run (action server)
+            name='cruise_server_node',
+            output='screen',
+            parameters=[{
+                'speed': launch.substitutions.LaunchConfiguration('speed')  # Pass speed parameter from launch argument
+            }],
+        ),
+
+        # Optionally launch the cruise_client node to send goals to the action server
+        Node(
+            package='cruise_control',  # The name of your package
+            executable='cruise_client',  # The executable for your action client
+            name='cruise_client_node',  # The name of the ROS 2 node
+            output='screen',  # Log output to the screen
+        ),
+    ])
